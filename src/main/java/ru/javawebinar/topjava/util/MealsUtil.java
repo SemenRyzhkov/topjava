@@ -20,17 +20,6 @@ import static java.util.stream.Collectors.toList;
 import static ru.javawebinar.topjava.util.TimeUtil.isBetweenHalfOpen;
 
 public class MealsUtil {
-    private static final List<Meal> ALL_MEALS = Arrays.asList(
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
-    );
-    private static final int MAX_CALORIES = 700;
-
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         List<Meal> meals = Arrays.asList(
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
@@ -62,14 +51,6 @@ public class MealsUtil {
         System.out.println(filteredByPredicate(meals, startTime, endTime, 2000));
         System.out.println(filteredByFlatMap(meals, startTime, endTime, 2000));
         System.out.println(filteredByCollector(meals, startTime, endTime, 2000));
-    }
-
-    public List<Meal> getAllMeals() {
-        return ALL_MEALS;
-    }
-
-    public int getMaxCalories() {
-        return MAX_CALORIES;
     }
 
     public static List<MealTo> filteredByStreams(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
@@ -341,7 +322,21 @@ public class MealsUtil {
         return values.stream().flatMap(identity()).collect(toList());
     }
 
-    public static MealTo createTo(Meal meal, boolean excess) {
+    public static List<MealTo> excessMeal(List<Meal> meals, int caloriesPerDay) {
+
+        final Map<LocalDate, Integer> caloriesSumByDate = new HashMap<>();
+        meals.forEach(meal -> caloriesSumByDate.merge(meal.getDate(), meal.getCalories(), Integer::sum));
+
+        final List<MealTo> mealsTo = new ArrayList<>();
+        meals.forEach(meal -> mealsTo.add(createToWithId(meal, caloriesSumByDate.get(meal.getDate()) >= caloriesPerDay)));
+        return mealsTo;
+    }
+
+    private static MealTo createTo(Meal meal, boolean excess) {
         return new MealTo(meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
+    }
+
+    private static MealTo createToWithId(Meal meal, boolean excess) {
+        return new MealTo(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
 }
