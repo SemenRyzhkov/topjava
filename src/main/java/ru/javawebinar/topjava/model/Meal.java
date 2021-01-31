@@ -5,20 +5,17 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
-public class Meal implements Comparable<Meal>{
+public class Meal {
     private int id;
     private LocalDateTime dateTime;
     private String description;
     private int calories;
-    public static final Meal EMPTY = new Meal(LocalDateTime.now(), "", 0);
 
     public Meal() {
     }
 
     public Meal(LocalDateTime dateTime, String description, int calories) {
-        this.dateTime = dateTime;
-        this.description = description;
-        this.calories = calories;
+        this(0, dateTime, description, calories);
     }
 
     public Meal(int id, LocalDateTime dateTime, String description, int calories) {
@@ -66,10 +63,5 @@ public class Meal implements Comparable<Meal>{
 
     public void setCalories(int calories) {
         this.calories = calories;
-    }
-
-    @Override
-    public int compareTo(Meal meal){
-        return this.dateTime.compareTo(meal.dateTime);
     }
 }

@@ -20,6 +20,10 @@ import static java.util.stream.Collectors.toList;
 import static ru.javawebinar.topjava.util.TimeUtil.isBetweenHalfOpen;
 
 public class MealsUtil {
+    public static final Meal EMPTY = new Meal(LocalDateTime.now(), "", 0);
+    public static final int CALORIES_PER_DAY = 2000;
+
+
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         List<Meal> meals = Arrays.asList(
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
@@ -62,7 +66,7 @@ public class MealsUtil {
 
         return meals.stream()
                 .filter(meal -> isBetweenHalfOpen(meal.getTime(), startTime, endTime))
-                .map(meal -> createTo(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
+                .map(meal -> createToWithId(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
     }
 
@@ -322,21 +326,11 @@ public class MealsUtil {
         return values.stream().flatMap(identity()).collect(toList());
     }
 
-    public static List<MealTo> excessMeal(List<Meal> meals, int caloriesPerDay) {
-
-        final Map<LocalDate, Integer> caloriesSumByDate = new HashMap<>();
-        meals.forEach(meal -> caloriesSumByDate.merge(meal.getDate(), meal.getCalories(), Integer::sum));
-
-        final List<MealTo> mealsTo = new ArrayList<>();
-        meals.forEach(meal -> mealsTo.add(createToWithId(meal, caloriesSumByDate.get(meal.getDate()) >= caloriesPerDay)));
-        return mealsTo;
-    }
-
     private static MealTo createTo(Meal meal, boolean excess) {
         return new MealTo(meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
-
     private static MealTo createToWithId(Meal meal, boolean excess) {
         return new MealTo(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
+
 }

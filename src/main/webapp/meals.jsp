@@ -1,6 +1,4 @@
-<%@ page import="ru.javawebinar.topjava.model.MealTo" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
-<%@ page import="java.time.LocalDateTime" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -22,12 +20,7 @@
     <c:forEach items="${mealToList}" var="mealTo">
         <jsp:useBean id="mealTo" type="ru.javawebinar.topjava.model.MealTo"/>
         <tr style="color:${mealTo.excess ? 'red' : 'green'}">
-            <%DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                LocalDateTime localDateTime = mealTo.getDateTime();
-                String date = localDateTime.format(formatter);
-                request.setAttribute("date", date);
-            %>
-            <td>${date} </td>
+            <td>${mealTo.dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))} </td>
             <td>${mealTo.description}</td>
             <td>${mealTo.calories}</td>
             <td><a href="meals?action=edit&mealId=${mealTo.id}">Обновить</a></td>
