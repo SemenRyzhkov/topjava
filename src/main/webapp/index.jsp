@@ -1,4 +1,4 @@
-<html lang="ru">
+<html lang="ru" xmlns:jsp="http://java.sun.com/JSP/Page">
 <head>
     <meta charset="UTF-8">
     <title>Java Enterprise (Topjava)</title>
@@ -6,6 +6,6 @@
 <body>
 <h3>Проект <a href="https://github.com/JavaWebinar/topjava" target="_blank">Java Enterprise (Topjava)</a></h3>
 <hr>
-<p><a href="meals">Meals List</a></p>
+<jsp:forward page="/meals?action=''"/>
 </body>
 </html>

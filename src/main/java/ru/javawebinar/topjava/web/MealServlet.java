@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.storage.MealsStorageImpl;
+import ru.javawebinar.topjava.storage.ConcurrentMapStorage;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.ServletConfig;
@@ -19,16 +19,17 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(UserServlet.class);
-    private MealsStorageImpl mealsStorage;
+    private ConcurrentMapStorage mealsStorage;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mealsStorage = new MealsStorageImpl();
+        mealsStorage = new ConcurrentMapStorage();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        log.debug("redirect to meals");
         request.setCharacterEncoding("UTF-8");
         int mealId = Integer.parseInt(request.getParameter("id"));
         LocalDateTime localDateTime = LocalDateTime.parse(request.getParameter("date"), formatter);
@@ -41,29 +42,25 @@ public class MealServlet extends HttpServlet {
             mealsStorage.save(meal);
         }
         response.sendRedirect("meals");
-        log.debug("redirect to meals");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.debug("redirect to users");
+        log.debug("redirect to meals");
         String id = request.getParameter("mealId");
         String action = request.getParameter("action");
         String forward = "";
+        log.debug("redirect to meal");
+        if (action == null) {
+            action = "";
+        }
 
         Meal meal;
-        if (action == null) {
-            request.setAttribute("mealToList", MealsUtil.filteredByStreams(
-                    mealsStorage.getAllSorted(),
-                    LocalTime.MIN,
-                    LocalTime.MAX,
-                    MealsUtil.CALORIES_PER_DAY));
-            request.getRequestDispatcher("/meals.jsp").forward(request, response);
-            log.debug("redirect to meals");
-            return;
-        } else switch (action) {
+        switch (action) {
             case "delete":
                 mealsStorage.delete(Integer.parseInt(id));
+                request.setAttribute("", "action");
                 response.sendRedirect("meals");
+
                 return;
             case "edit":
                 forward = "/edit.jsp";
@@ -74,10 +71,15 @@ public class MealServlet extends HttpServlet {
                 forward = "/edit.jsp";
                 break;
             default:
-                throw new IllegalArgumentException("Action " + action + " is illegal");
+                request.setAttribute("mealToList", MealsUtil.filteredByStreams(
+                        mealsStorage.getAllSorted(),
+                        LocalTime.MIN,
+                        LocalTime.MAX,
+                        MealsUtil.CALORIES_PER_DAY));
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
+                return;
         }
         request.setAttribute("meal", meal);
         request.getRequestDispatcher(forward).forward(request, response);
-        log.debug("redirect to meal");
     }
 }
