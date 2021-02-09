@@ -9,22 +9,12 @@ public class DateTimeUtil {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public static boolean isBetweenHalfOpen(LocalTime lt, LocalTime startTime, LocalTime endTime) {
-        if (startTime == null){
-            startTime = LocalTime.MIN;
-        }
-        if (endTime == null){
-            endTime = LocalTime.MAX;
-        }
-        return lt.compareTo(startTime) >= 0 && lt.compareTo(endTime) < 0;
+        return lt.compareTo(startTime == null? LocalTime.MIN : startTime) >= 0
+                && lt.compareTo(endTime == null? LocalTime.MAX : endTime) < 0;
     }
     public static boolean isBetweenHalfOpen(LocalDate ld, LocalDate startDate, LocalDate endDate) {
-        if (startDate == null){
-            startDate = LocalDate.MIN;
-        }
-        if (endDate == null){
-            endDate = LocalDate.MAX;
-        }
-        return ld.compareTo(startDate) >= 0 && ld.compareTo(endDate) <= 0;
+        return ld.compareTo(startDate == null? LocalDate.MIN : startDate) >= 0 &&
+                ld.compareTo(endDate == null? LocalDate.MAX : endDate) <= 0;
     }
 
     public static String toString(LocalDateTime ldt) {
