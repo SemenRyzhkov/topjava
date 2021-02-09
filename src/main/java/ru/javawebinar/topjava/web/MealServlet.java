@@ -22,6 +22,7 @@ public class MealServlet extends HttpServlet {
 
     private MealRepository repository;
 
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -34,12 +35,13 @@ public class MealServlet extends HttpServlet {
         String id = request.getParameter("id");
 
         Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
+                null,
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        repository.save(meal);
+//        repository.save(meal);
         response.sendRedirect("meals");
     }
 
@@ -51,7 +53,7 @@ public class MealServlet extends HttpServlet {
             case "delete":
                 int id = getId(request);
                 log.info("Delete {}", id);
-                repository.delete(id);
+//                repository.delete(id);
                 response.sendRedirect("meals");
                 break;
             case "create":
@@ -64,11 +66,11 @@ public class MealServlet extends HttpServlet {
                 break;
             case "all":
             default:
-                log.info("getAll");
-                request.setAttribute("meals",
-                        MealsUtil.getTos(repository.getAll(), MealsUtil.DEFAULT_CALORIES_PER_DAY));
-                request.getRequestDispatcher("/meals.jsp").forward(request, response);
-                break;
+//                log.info("getAll");
+//                request.setAttribute("meals",
+//                        MealsUtil.getTos(repository.getAll(), MealsUtil.DEFAULT_CALORIES_PER_DAY));
+//                request.getRequestDispatcher("/meals.jsp").forward(request, response));
+//                break;
         }
     }
 
