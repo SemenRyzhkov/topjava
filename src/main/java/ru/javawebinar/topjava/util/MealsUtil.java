@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.util;
 
+import org.springframework.stereotype.Component;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class MealsUtil {
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
 
-    public static final List<Meal> meals = Arrays.asList(
+    public static final List<Meal> mealsUser1 = Arrays.asList(
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
@@ -25,15 +26,18 @@ public class MealsUtil {
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
     );
-    public static final User user1 = new User(1, "User1", "email1", "password1", Role.USER);
-    public static final User user2 = new User(2, "User2", "email2", "password2", Role.USER);
+    public static final List<Meal> mealsUser2 = Arrays.asList(
+            new Meal(LocalDateTime.of(2021, Month.FEBRUARY, 10, 10, 0), "Завтрак1", 600),
+            new Meal(LocalDateTime.of(2021, Month.FEBRUARY, 10, 13, 0), "Обед1", 1100),
+            new Meal(LocalDateTime.of(2021, Month.FEBRUARY, 10, 20, 0), "Ужин1", 700),
+            new Meal(LocalDateTime.of(2021, Month.FEBRUARY, 11, 0, 0), "Еда на граничное значение1", 350),
+            new Meal(LocalDateTime.of(2021, Month.FEBRUARY, 11, 10, 0), "Завтрак2", 1110),
+            new Meal(LocalDateTime.of(2021, Month.FEBRUARY, 11, 13, 0), "Обед2", 800),
+            new Meal(LocalDateTime.of(2021, Month.FEBRUARY, 11, 20, 0), "Ужин2", 430)
+    );
 
     public static void main(String[] args) {
-        Map<Integer, String> map = new HashMap<>();
-        map.put(1, "ww");
-        map.put(2, "qq");
-        map.put(3, "rr");
-        System.out.println(map.remove(3));
+
     }
 
     public static List<MealTo> getTos(Collection<Meal> meals, int caloriesPerDay) {

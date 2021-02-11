@@ -43,7 +43,7 @@ public class MealRestController {
 
     public Meal get(int id){
         log.info("get {}", id);
-        return service.get(id);
+        return service.get(id, authUserId());
     }
 
     public List<MealTo> getAll() {

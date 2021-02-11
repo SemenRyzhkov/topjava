@@ -18,7 +18,12 @@ public class InMemoryMealRepository implements MealRepository {
     private final AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.meals.forEach(meal -> save(meal, 1));
+        try {
+            MealsUtil.mealsUser1.forEach(meal -> save(meal, 1));
+            MealsUtil.mealsUser2.forEach(meal -> save(meal, 2));
+        } catch (Exception e) {
+            e.getMessage();
+        }
     }
 
     @Override
@@ -29,7 +34,7 @@ public class InMemoryMealRepository implements MealRepository {
             meal.setId(counter.incrementAndGet());
             repository.put(meal.getId(), meal);
             savedMeal = meal;
-        } else if (meal.getUserId() == userId) {
+        } else if (repository.get(meal.getId()).getUserId() == userId) {
             savedMeal = repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
         }
         // handle case: update, but not present in storage
@@ -44,15 +49,18 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public Meal get(int id) {
-        return repository.get(id);
+    public Meal get(int id, int userId) {
+        if (repository.get(id).getUserId() == userId) {
+            return repository.get(id);
+        }
+        return null;
     }
 
     @Override
     public Collection<Meal> getAll(int userId) {
         return repository.values()
                 .stream()
-                .filter(meal -> meal.getUserId() == userId)
+                .filter(meal -> meal.getId() == userId)
                 .sorted((m1, m2) -> m2.getDate().compareTo(m1.getDate()))
                 .collect(Collectors.toList());
     }
