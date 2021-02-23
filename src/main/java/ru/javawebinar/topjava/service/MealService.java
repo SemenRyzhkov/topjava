@@ -1,10 +1,8 @@
 package ru.javawebinar.topjava.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -29,11 +27,7 @@ public class MealService {
     }
 
     public Meal get(int id, int userId) {
-        Meal meal = repository.get(id, userId);
-
-        if (meal != null) {
             return checkNotFoundWithId(repository.get(id, userId), id);
-        } else throw new NotFoundException("");
     }
 
     public void update(Meal meal, int userId) {
@@ -45,6 +39,6 @@ public class MealService {
     }
 
     public Collection<Meal> getAllSortedByDate(int userId, LocalDate startDate, LocalDate endDate) {
-        return repository.getAllSortedByDate(userId, startDate, endDate);
+        return repository.getAllFilteredByDate(userId, startDate, endDate);
     }
 }

@@ -77,7 +77,7 @@ public class MealServlet extends HttpServlet {
                 String sDate = request.getParameter("dateStart");
                 String eDate = request.getParameter("dateEnd");
                 String sTime = request.getParameter("timeStart");
-                String etime = request.getParameter("timeEnd");
+                String eTime = request.getParameter("timeEnd");
                 LocalDate startDate = sDate.isEmpty()
                         ? null
                         : LocalDate.parse(sDate);
@@ -87,9 +87,9 @@ public class MealServlet extends HttpServlet {
                 LocalTime startTime = sTime.isEmpty()
                         ? null
                         : LocalTime.parse(sTime);
-                LocalTime endTime = etime.isEmpty()
+                LocalTime endTime = eTime.isEmpty()
                         ? null
-                        : LocalTime.parse(etime);
+                        : LocalTime.parse(eTime);
                 request.setAttribute("meals",
                         mealRestController.getAllSortedByDateAndTime(startDate, endDate, startTime, endTime));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
