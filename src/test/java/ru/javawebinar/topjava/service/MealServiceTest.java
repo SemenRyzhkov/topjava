@@ -83,7 +83,7 @@ public class MealServiceTest extends TestCase {
     @Test
     public void getAll() {
         List<Meal> all = service.getAll(USER_ID);
-        assertMatch(all, userMeal1, userMeal);
+        assertMatch(all, userMeal5, userMeal4, userMeal3, userMeal2, userMeal, userMeal1);
     }
 
     @Test
