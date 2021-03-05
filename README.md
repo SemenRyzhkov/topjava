@@ -1,5 +1,5 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3cd331e1fe7a43f192ed1d16c40c6c6c)](https://www.codacy.com/gh/SemenRyzhkov/topjava/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=SemenRyzhkov/topjava&amp;utm_campaign=Badge_Grade)
-https://travis-ci.com/SemenRyzhkov/basejava.svg?branch=master
+[![Build Status](https://travis-ci.com/SemenRyzhkov/topjava.svg?branch=master)](https://travis-ci.com/SemenRyzhkov/topjava)
 
 Java Enterprise Online Project 
 ===============================
