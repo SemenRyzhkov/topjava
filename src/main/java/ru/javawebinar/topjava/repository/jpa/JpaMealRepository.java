@@ -23,24 +23,22 @@ public class JpaMealRepository implements MealRepository {
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
+        User ref = em.getReference(User.class, userId);
+        meal.setUser(ref);
         if (meal.isNew()) {
-            User ref = em.getReference(User.class, userId);
-            meal.setUser(ref);
             em.persist(meal);
             return meal;
-        } else {
-            Meal updatedMeal = get(meal.getId(), userId);
-            if (updatedMeal != null) {
-                updatedMeal.setDateTime(meal.getDateTime());
-                updatedMeal.setDescription(meal.getDescription());
-                updatedMeal.setCalories(meal.getCalories());
-                return em.merge(updatedMeal);
-            } else return null;
+        } else if (get(meal.getId(), userId) != null) {
+            return em.merge(meal);
+        }else return null;
 //            List<Meal> meals = em.createNamedQuery(Meal.UPDATE)
-//                    .setParameter(1, userId)
+//                    .setParameter("date_time", meal.getDateTime())
+//                    .setParameter("description", meal.getDescription())
+//                    .setParameter("calories", meal.getCalories())
+//                    .setParameter("id", meal.getId())
+//                    .setParameter("userId", userId)
 //                    .getResultList();
 //            return DataAccessUtils.singleResult(meals);
-        }
     }
 
     @Override
@@ -54,7 +52,7 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = em.createNamedQuery(Meal.GET)
+        List<Meal> meals = em.createNamedQuery(Meal.GET, Meal.class)
                 .setParameter(1, id)
                 .setParameter(2, userId)
                 .getResultList();
