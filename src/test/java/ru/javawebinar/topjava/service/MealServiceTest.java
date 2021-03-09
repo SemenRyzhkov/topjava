@@ -34,34 +34,18 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-    private static StringBuilder sb = new StringBuilder("Time of all test: \n");
+    private static StringBuilder sb = new StringBuilder("\n\nTime of all test: \n");
 
     @Rule
     public Stopwatch stopwatch = new Stopwatch() {
-//        @Override
-//        protected void succeeded(long nanos, Description description) {
-//            sb.append(description).append(" - ").append(nanos).append("\n");
-//            log.info(description + " succeeded " + nanos);
-//        }
-        @Override
-        protected void failed(long nanos, Throwable e, Description description) {
-            long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
-            sb.append(description).append(" - ").append(millis).append("\n");
-            log.info(description +" failed " + millis);
-        }
-
-        @Override
-        protected void skipped(long nanos, AssumptionViolatedException e, Description description) {
-            long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
-            sb.append(description).append(" - ").append(millis).append("\n");
-            log.info(description +" skipped " + millis);
-        }
-
         @Override
         protected void finished(long nanos, Description description) {
             long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
-            sb.append(description).append(" - ").append(millis).append("\n");
-            log.info(description + " finished " + millis);
+            String s = description
+                    .toString()
+                    .replaceAll("(ru.javawebinar.topjava.service.MealServiceTest)", "");
+            sb.append(String.format("\n%-40s%5d ms\n", s, millis));
+            log.info("\n\n" + "Method " + s + " finished in " + millis + " ms\n");
         }
     };
 
@@ -70,7 +54,7 @@ public class MealServiceTest {
 
     @AfterClass
     public static void afterClass() {
-        System.out.println(sb.toString());
+        log.info(sb.toString());
     }
 
     @Test
@@ -104,7 +88,6 @@ public class MealServiceTest {
         assertThrows(DataAccessException.class, () ->
                 service.create(new Meal(null, meal1.getDateTime(), "duplicate", 100), USER_ID));
     }
-
 
     @Test
     public void get() {
