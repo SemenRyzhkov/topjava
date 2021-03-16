@@ -41,9 +41,7 @@ public class MealServiceTest {
         @Override
         protected void finished(long nanos, Description description) {
             long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
-            String s = description
-                    .toString()
-                    .replaceAll("(ru.javawebinar.topjava.service.MealServiceTest)", "");
+            String s = description.getMethodName();
             sb.append(String.format("\n%-40s%5d ms\n", s, millis));
             log.info("\n\n" + "Method " + s + " finished in " + millis + " ms\n");
         }
