@@ -6,7 +6,6 @@ import org.springframework.util.StringUtils;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,8 +26,7 @@ public class MealServlet extends HttpServlet {
     private MealRestController mealController;
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
+    public void init() {
         springContext = new ClassPathXmlApplicationContext("spring/spring-app.xml", "spring/spring-db.xml");
         mealController = springContext.getBean(MealRestController.class);
     }
@@ -47,10 +45,10 @@ public class MealServlet extends HttpServlet {
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
 
-        if (StringUtils.hasLength(request.getParameter("id"))) {
-            mealController.update(meal, getId(request));
-        } else {
+        if (StringUtils.isEmpty(request.getParameter("id"))) {
             mealController.create(meal);
+        } else {
+            mealController.update(meal, getId(request));
         }
         response.sendRedirect("meals");
     }
@@ -60,32 +58,30 @@ public class MealServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         switch (action == null ? "all" : action) {
-            case "delete":
+            case "delete" -> {
                 int id = getId(request);
                 mealController.delete(id);
                 response.sendRedirect("meals");
-                break;
-            case "create":
-            case "update":
+            }
+            case "create", "update" -> {
                 final Meal meal = "create".equals(action) ?
                         new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
                         mealController.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
-                break;
-            case "filter":
+            }
+            case "filter" -> {
                 LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
                 LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
                 LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
                 LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
                 request.setAttribute("meals", mealController.getBetween(startDate, startTime, endDate, endTime));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
-                break;
-            case "all":
-            default:
+            }
+            default -> {
                 request.setAttribute("meals", mealController.getAll());
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
-                break;
+            }
         }
     }
 
