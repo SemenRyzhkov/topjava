@@ -19,7 +19,6 @@ public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
 
     List<Meal> getAllByUserIdOrderByDateTimeDesc(int usrId);
 
-    @Modifying
     @Query("SELECT m FROM Meal m WHERE m.user.id=:userId " +
             "AND m.dateTime >= :startDateTime AND m.dateTime < :endDateTime ORDER BY m.dateTime DESC")
     List<Meal> getAllSorted(
@@ -27,5 +26,7 @@ public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime);
 
+    @Query("SELECT m FROM Meal m LEFT JOIN FETCH m.user WHERE m.id=:id AND m.user.id=:userId")
+    Meal getWithUser(@Param("id") int id, @Param("userId") int userId);
 
 }

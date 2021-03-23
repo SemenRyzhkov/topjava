@@ -1,5 +1,7 @@
 package ru.javawebinar.topjava.model;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.util.CollectionUtils;
 
@@ -48,6 +50,7 @@ public class User extends AbstractNamedEntity {
             uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "role"}, name = "user_roles_unique_idx")})
     @Column(name = "role")
     @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     private Set<Role> roles;
 
     @Column(name = "calories_per_day", nullable = false, columnDefinition = "int default 2000")
@@ -55,6 +58,7 @@ public class User extends AbstractNamedEntity {
     private int caloriesPerDay = DEFAULT_CALORIES_PER_DAY;
 
     @OneToMany(mappedBy = "user")
+    @OrderBy("dateTime desc")
     private List<Meal> meals;
 
     public User() {
@@ -132,13 +136,6 @@ public class User extends AbstractNamedEntity {
 
     public void setMeals(List<Meal> meals) {
         this.meals = meals;
-    }
-
-    public void addMeal(Meal meal) {
-        this.meals.add(meal);
-        if (meal.getUser() != this) {
-            meal.setUser(this);
-        }
     }
 
     @Override

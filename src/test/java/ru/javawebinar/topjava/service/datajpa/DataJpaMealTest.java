@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.springframework.test.context.ActiveProfiles;
 import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.UserTestData;
-import ru.javawebinar.topjava.model.User;
+import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealServiceTest;
 
 import static ru.javawebinar.topjava.MealTestData.MEAL1_ID;
@@ -15,8 +15,8 @@ import static ru.javawebinar.topjava.UserTestData.USER_MATCHER;
 public class DataJpaMealTest extends MealServiceTest {
 
     @Test
-    public void getUser(){
-        User user = service.getUser(MEAL1_ID, USER_ID);
-        USER_MATCHER.assertMatch(user, UserTestData.user);
+    public void getWithUser(){
+        Meal meal = service.getWithUser(MEAL1_ID, USER_ID);
+        USER_MATCHER.assertMatch(meal.getUser(), UserTestData.user);
     }
 }
