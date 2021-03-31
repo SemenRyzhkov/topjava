@@ -27,7 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @ActiveProfiles(resolver = ActiveDbProfileResolver.class)
 public abstract class AbstractServiceTest {
     private static final Logger log = getLogger("result");
-
+    private static String className;
     private static final StringBuilder results = new StringBuilder();
 
     @Rule
@@ -37,20 +37,20 @@ public abstract class AbstractServiceTest {
         protected void finished(long nanos, Description description) {
             String result = String.format("\n%-25s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
             results.append(result);
+            className = description.getClassName()
+                    .replaceAll("ru.javawebinar.topjava.service.", "");
             log.info(result + " ms\n");
         }
     };
 
-    @Autowired
-    private MealService service;
-
     @AfterClass
     public static void printResult() {
-        log.info("\n---------------------------------" +
-                "\nTest                 Duration, ms" +
-                "\n---------------------------------" +
+        log.info("\n----------------------------------" +
+                "\n" + className + "      Duration, ms" +
+                "\n----------------------------------" +
                 results +
-                "\n---------------------------------");
+                "\n----------------------------------");
+        results.setLength(0);
+        className = null;
     }
-
 }
