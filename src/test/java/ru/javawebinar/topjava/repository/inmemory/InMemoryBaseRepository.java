@@ -12,18 +12,18 @@ import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
 public class InMemoryBaseRepository<T extends AbstractBaseEntity> {
 
-    private static final AtomicInteger counter = new AtomicInteger(START_SEQ);
+    static final AtomicInteger counter = new AtomicInteger(START_SEQ);
 
     final Map<Integer, T> map = new ConcurrentHashMap<>();
 
-    public T save(T entry) {
-        Objects.requireNonNull(entry, "Entry must not be null");
-        if (entry.isNew()) {
-            entry.setId(counter.incrementAndGet());
-            map.put(entry.getId(), entry);
-            return entry;
+    public T save(T entity) {
+        Objects.requireNonNull(entity, "Entity must not be null");
+        if (entity.isNew()) {
+            entity.setId(counter.getAndIncrement());
+            map.put(entity.getId(), entity);
+            return entity;
         }
-        return map.computeIfPresent(entry.getId(), (id, oldT) -> entry);
+        return map.computeIfPresent(entity.getId(), (id, oldT) -> entity);
     }
 
     public boolean delete(int id) {
@@ -36,5 +36,10 @@ public class InMemoryBaseRepository<T extends AbstractBaseEntity> {
 
     Collection<T> getCollection() {
         return map.values();
+    }
+
+    void put(T entity) {
+        Objects.requireNonNull(entity, "Entity must not be null");
+        map.put(entity.id(), entity);
     }
 }
