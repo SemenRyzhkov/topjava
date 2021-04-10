@@ -14,9 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
+import ru.javawebinar.topjava.util.ValidationUtil;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -24,6 +23,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+
+import static ru.javawebinar.topjava.util.ValidationUtil.validation;
 
 @Repository
 @Transactional(readOnly = true)
@@ -55,6 +56,8 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     @Transactional
     public User save(User user) {
+        validation(validator, user);
+
         BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(user);
 
         if (user.isNew()) {
@@ -94,7 +97,7 @@ public class JdbcUserRepository implements UserRepository {
                     });
             return user;
         } else return null;
-        return validation(user);
+        return user;
     }
 
     @Override
@@ -108,7 +111,7 @@ public class JdbcUserRepository implements UserRepository {
         List<User> users = jdbcTemplate.query("" +
                         "SELECT * FROM users u left outer join user_roles ur on u.id = ur.user_id WHERE u.id=?",
                 new UserWithRoleExtractor(), id);
-        return validation(DataAccessUtils.singleResult(users));
+        return validation(validator, DataAccessUtils.singleResult(users));
     }
 
     @Override
@@ -117,7 +120,8 @@ public class JdbcUserRepository implements UserRepository {
         List<User> users = jdbcTemplate.query("" +
                         "SELECT * FROM users u left outer join user_roles ur on u.id = ur.user_id WHERE email=?",
                 new UserWithRoleExtractor(), email);
-        return validation(DataAccessUtils.singleResult(users));
+        ;
+        return validation(validator, DataAccessUtils.singleResult(users));
     }
 
     @Override
@@ -125,7 +129,7 @@ public class JdbcUserRepository implements UserRepository {
         List<User> users = jdbcTemplate.query("" +
                         "SELECT * FROM users LEFT JOIN user_roles ur on users.id = ur.user_id ORDER BY name, email",
                 new UserWithRoleExtractor());
-        Objects.requireNonNull(users).forEach(this::validation);
+        Objects.requireNonNull(users).forEach(u -> ValidationUtil.validation(validator, u));
         return users;
     }
 
@@ -156,13 +160,5 @@ public class JdbcUserRepository implements UserRepository {
             }
             return new ArrayList<>(usersMap.values());
         }
-    }
-
-    private User validation(User user) {
-        Set<ConstraintViolation<User>> violations
-                = validator.validate(user);
-        if (violations.size() > 0) {
-            throw new ConstraintViolationException(violations);
-        } else return user;
     }
 }
