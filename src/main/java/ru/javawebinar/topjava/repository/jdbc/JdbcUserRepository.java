@@ -63,40 +63,18 @@ public class JdbcUserRepository implements UserRepository {
         if (user.isNew()) {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
-            jdbcTemplate.batchUpdate("insert into user_roles values (?,?)", new BatchPreparedStatementSetter() {
-                @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    ps.setString(2, List.copyOf(user.getRoles()).get(i).name());
-                    ps.setInt(1, user.getId());
-                }
-
-                @Override
-                public int getBatchSize() {
-                    return user.getRoles().size();
-                }
-            });
-
+            insertRoles(jdbcTemplate, user);
 
         } else if (namedParameterJdbcTemplate.update("""
                    UPDATE users SET name=:name, email=:email, password=:password, 
                    registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id
                 """, parameterSource) != 0
         ) {
-            jdbcTemplate.batchUpdate("update user_roles set role=? where user_id=?",
-                    new BatchPreparedStatementSetter() {
-                        @Override
-                        public void setValues(PreparedStatement ps, int i) throws SQLException {
-                            ps.setString(1, List.copyOf(user.getRoles()).get(i).name());
-                            ps.setInt(2, user.getId());
-                        }
+            jdbcTemplate.update("DELETE FROM user_roles ur  WHERE ur.user_id=?", user.getId());
+            insertRoles(jdbcTemplate, user);
 
-                        @Override
-                        public int getBatchSize() {
-                            return user.getRoles().size();
-                        }
-                    });
-            return user;
         } else return null;
+
         return user;
     }
 
@@ -160,5 +138,29 @@ public class JdbcUserRepository implements UserRepository {
             }
             return new ArrayList<>(usersMap.values());
         }
+    }
+
+    private static final class UserBatchPreparedStatementSetter implements BatchPreparedStatementSetter {
+        private User user;
+
+        public UserBatchPreparedStatementSetter(User user) {
+            this.user = user;
+        }
+
+        @Override
+        public void setValues(PreparedStatement ps, int i) throws SQLException {
+            ps.setString(2, List.copyOf(user.getRoles()).get(i).name());
+            ps.setInt(1, user.getId());
+        }
+
+        @Override
+        public int getBatchSize() {
+            return user.getRoles().size();
+        }
+    }
+
+    private void insertRoles(JdbcTemplate jdbcTemplate, User user){
+        jdbcTemplate.batchUpdate("insert into user_roles values (?,?)",
+                new UserBatchPreparedStatementSetter(user));
     }
 }
