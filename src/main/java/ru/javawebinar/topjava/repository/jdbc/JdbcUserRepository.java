@@ -63,7 +63,6 @@ public class JdbcUserRepository implements UserRepository {
         if (user.isNew()) {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
-            insertRoles(jdbcTemplate, user);
 
         } else if (namedParameterJdbcTemplate.update("""
                    UPDATE users SET name=:name, email=:email, password=:password, 
@@ -71,9 +70,10 @@ public class JdbcUserRepository implements UserRepository {
                 """, parameterSource) != 0
         ) {
             jdbcTemplate.update("DELETE FROM user_roles ur  WHERE ur.user_id=?", user.getId());
-            insertRoles(jdbcTemplate, user);
 
         } else return null;
+
+        insertRoles(jdbcTemplate, user);
 
         return user;
     }
@@ -89,7 +89,7 @@ public class JdbcUserRepository implements UserRepository {
         List<User> users = jdbcTemplate.query("" +
                         "SELECT * FROM users u left outer join user_roles ur on u.id = ur.user_id WHERE u.id=?",
                 new UserWithRoleExtractor(), id);
-        return validation(validator, DataAccessUtils.singleResult(users));
+        return DataAccessUtils.singleResult(users);
     }
 
     @Override
@@ -99,16 +99,14 @@ public class JdbcUserRepository implements UserRepository {
                         "SELECT * FROM users u left outer join user_roles ur on u.id = ur.user_id WHERE email=?",
                 new UserWithRoleExtractor(), email);
         ;
-        return validation(validator, DataAccessUtils.singleResult(users));
+        return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public List<User> getAll() {
-        List<User> users = jdbcTemplate.query("" +
+        return jdbcTemplate.query("" +
                         "SELECT * FROM users LEFT JOIN user_roles ur on users.id = ur.user_id ORDER BY name, email",
                 new UserWithRoleExtractor());
-        Objects.requireNonNull(users).forEach(u -> ValidationUtil.validation(validator, u));
-        return users;
     }
 
     private static final class UserWithRoleExtractor implements ResultSetExtractor<List<User>> {
@@ -159,7 +157,7 @@ public class JdbcUserRepository implements UserRepository {
         }
     }
 
-    private void insertRoles(JdbcTemplate jdbcTemplate, User user){
+    private void insertRoles(JdbcTemplate jdbcTemplate, User user) {
         jdbcTemplate.batchUpdate("insert into user_roles values (?,?)",
                 new UserBatchPreparedStatementSetter(user));
     }
